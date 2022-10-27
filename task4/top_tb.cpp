@@ -1,4 +1,5 @@
-#include "Vcounter.h"
+#include "Vtop.h"
+
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "vbuddy.cpp"
@@ -8,15 +9,17 @@ int main(int argc, char **argv, char **env) {
     int clk;
 
     Verilated::commandArgs(argc, argv);
+
     // Init top verilog instance
-    Vcounter* top = new Vcounter;
+    Vtop* top = new Vtop;
+
     // Init trace dump
     Verilated::traceEverOn(true);
     VerilatedVcdC* tfp = new VerilatedVcdC;
     top->trace(tfp, 99);
     tfp->open("top.vcd");
 
-    Init Vbuddy
+    // Init Vbuddy
     if (vbdOpen() != 1)
         return(-1);
     vbdHeader("Lab 1: Counter");
@@ -26,8 +29,8 @@ int main(int argc, char **argv, char **env) {
     top->rst = 0;
     top->en = 0;
 
-    // Run simulation for many clock cycles
-    for (i = 0; i < 100; i ++) {
+    // Run simulation for all 256 possible values
+    for (i = 0; i < 256; i ++) {
         
         // Dump variables into VCD file and toggle clock
         for (clk = 0; clk < 2; clk ++) {
@@ -36,9 +39,9 @@ int main(int argc, char **argv, char **env) {
             top->eval();
         }
 
-        int val2 = (int(top->count) >> 8) & 0xf;
-        int val1 = (int(top->count) >> 4) & 0xf;
-        int val0 = int(top->count) & 0xf;
+        int val2 = (int(top->bcd) >> 8) & 0xf;
+        int val1 = (int(top->bcd) >> 4) & 0xf;
+        int val0 = int(top->bcd) & 0xf;
         int bcdVal = val2 * 100 + val1 * 10 + val0;
 
         if (bcdVal != i) {
@@ -46,10 +49,10 @@ int main(int argc, char **argv, char **env) {
         }
 
         //Send count value to Vbuddy
-        vbdHex(4, (int(top->count) >> 16) & 0xf);
-        vbdHex(3, (int(top->count) >> 8) & 0xf);
-        vbdHex(2, (int(top->count) >> 4) & 0xf);
-        vbdHex(1, int(top->count) & 0xf);
+        vbdHex(4, 0);
+        vbdHex(3, val2);
+        vbdHex(2, val1);
+        vbdHex(1, val0);
         vbdCycle(i + 1);
 
         // Change input stimuli

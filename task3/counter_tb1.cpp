@@ -16,15 +16,16 @@ int main(int argc, char **argv, char **env) {
     top->trace(tfp, 99);
     tfp->open("counter.vcd");
 
-    // Init Vbuddy
+    //Init Vbuddy
     if (vbdOpen() != 1)
         return(-1);
     vbdHeader("Lab 1: Counter");
+    vbdSetMode(1); // Set flag to one-shot behaviour
 
     // Init simulation inputs
     top->clk = 1;
-    top->rst = 1;
-    top->en = 0;
+    top->rst = 0;
+    top->en = 1; // For this test, let en=1
 
     // Run simulation for many clock cycles
     for (i = 0; i < 100; i ++) {
@@ -36,7 +37,7 @@ int main(int argc, char **argv, char **env) {
             top->eval();
         }
 
-        // Send count value to Vbuddy
+        //Send count value to Vbuddy
         vbdHex(4, (int(top->count) >> 16) & 0xf);
         vbdHex(3, (int(top->count) >> 8) & 0xf);
         vbdHex(2, (int(top->count) >> 4) & 0xf);
@@ -44,8 +45,8 @@ int main(int argc, char **argv, char **env) {
         vbdCycle(i + 1);
 
         // Change input stimuli
-        top->rst = (i < 2);
-        top->en = vbdFlag();
+        top->vbdval = vbdValue();
+        top->pst = vbdFlag();
         if (Verilated::gotFinish()) exit(0);
     }
 
