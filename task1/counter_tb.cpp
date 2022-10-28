@@ -3,7 +3,6 @@
 #include "verilated_vcd_c.h"
 
 int main(int argc, char **argv, char **env) {
-    int clk;
     int internalCount = 0;
 
     Verilated::commandArgs(argc, argv);
@@ -17,25 +16,32 @@ int main(int argc, char **argv, char **env) {
 
     // Init simulation inputs
     top->clk = 1;
-    top->rst = 1;
-    top->en = 0;
+    top->rst = 0;
+    top->en = 1;
 
     // Run simulation for many clock cycles
     for (int i = 0; i < 100; i ++) {
-        
-        // Dump variables into VCD file and toggle clock
-        for (clk = 0; clk < 2; clk ++) {
-            tfp->dump(2*i + clk);
-            top->clk = !top->clk;
-            top->eval();
-        }
+
+        // Clock low
+
+        tfp->dump(2*i);
+        top->clk = 0;
+        top->eval();
+
+        // Clock high
+        tfp->dump(2*i + 1);
+
+        top->clk = 1;
         if (top->count == 9 && internalCount < 3) {
             internalCount ++;
         } else if (internalCount == 3) {
             internalCount = 0;
         }
         top->en = internalCount == 0;
-        top->rst = i == 15 && internalCount == 0;
+        top->rst = i == 5 && internalCount == 0;
+
+        top->eval();
+        
         if (Verilated::gotFinish()) exit(0);
     }
     tfp->close();

@@ -8,7 +8,9 @@ I added a conditional statement to the testbench to start a counter if count=9. 
 
 ## Challenge 2
 
-Asynchronous reset was implemented by adding 'posedge rst' to the sensitivity list of the always_ff statement. In the case that the positive edges of the clock and reset coincided, the counter was seen to increment. This was expected since just before the positive edge of the reset, it would have been deasserted. Therefore, the always_ff block was executed with rst=0. As an additional note, implementing asynchronous signals with Verilator is probably ill-advised, since Verilator only simulates on the clock edge.
+Asynchronous reset was implemented by adding 'posedge rst' to the sensitivity list of the always_ff statement. In the case that the positive edges of the clock and reset coincided, the counter was seen to increment. This was expected since just before the positive edge of the reset, it would have been deasserted. A way to obtain the behaviour where the counter would reset due to a positive edge on rst was not found.
+
+**It is important to note that implementing asynchronous signals with Verilator is ill-advised, since Verilator only simulates on the clock edge. Therefore, unintuitive behaviour can arise such as this.**
 
 # Task 2
 

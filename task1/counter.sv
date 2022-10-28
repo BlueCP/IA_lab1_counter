@@ -4,7 +4,7 @@ module counter #(parameter WIDTH = 8)
  input logic en, // Counter enable
  output logic[WIDTH-1:0] count); // Counter output
     
-    always_ff @(posedge clk, posedge rst)
+    always_ff @(posedge rst, posedge clk)
         if (rst)
             count <= {WIDTH{1'b0}};
         else
